@@ -1,10 +1,10 @@
 const express = require('express')
 const app = express()
-const cors = require('cors')
+const cors = require("cors")
 const multer = require('multer')
 
 const PORT = process.env.PORT || 3000
-
+app.use(cors());
 app.use(express.json())
 
 const upload = multer({storage:multer.memoryStorage()})

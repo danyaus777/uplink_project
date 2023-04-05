@@ -1,7 +1,10 @@
 'use strict'
 const express = require('express')
 require('dotenv').config()
+const jwt = require('jsonwebtoken')
 const db = require('../lib/db')
+
+
 
 exports.postadd = (req, res, next) =>{
     const title = req.body.title
@@ -130,6 +133,103 @@ exports.moder_bad = (req, res) =>{
                         message: 'Пост успешно отклонен'
                     })
                 }
+            })
+        }
+    })
+}
+
+exports.add_comment = (req, res) => {
+    const post_id = req.params.id
+    const token = (req.headers.authorization).split(' ')[1]
+    const decoded = jwt.verify(token, process.env.SECRETKEY)
+    req.userData = decoded
+    const user_id = req.userData.userId
+    const text = req.body.text
+    db.query(`INSERT INTO comments (user_id, post_id, text) VALUES ('${user_id}','${post_id}', '${text}')`,
+        (err, result) =>{
+        if(err){
+            return res.status(400).send({
+                message: "Ошибка добавления комментария"
+            })
+        }
+        if(result) {
+            return res.status(200).send({
+                message: "Комментарий добавлен"
+            })
+        }
+    })
+}
+
+exports.delete_comment = (req, res) =>{
+    const comment_id = req.params.id
+    db.query(`DELETE FROM comments WHERE id=?`, comment_id, (err, result)=>{
+        if(err){
+            return res.status(400).send({
+                message: "Ошибка удаления"
+            })
+        }
+        if(result){
+            return res.status(200).send({
+                message: "Комментарий удален"
+            })
+        }
+    })
+}
+
+exports.add_favorite = (req, res) =>{
+    const post_id = req.params.id
+    const token = (req.headers.authorization).split(' ')[1]
+    const decoded = jwt.verify(token, process.env.SECRETKEY)
+    req.userData = decoded
+    const user_id = req.userData.userId
+    db.query(`INSERT INTO favorites (user_id, post_id) VALUES ('${user_id}','${post_id}')`, (err, result)=>{
+        if(err){
+            return res.status(400).send({
+                message: "Ошибка добавления в избранное"
+            })
+        }
+        if(result){
+            return res.status(200).send({
+                message: "Пост добавлен в избранное"
+            })
+        }
+    })
+}
+
+exports.favorites = (req, res) =>{
+    const token = (req.headers.authorization).split(' ')[1]
+    const decoded = jwt.verify(token, process.env.SECRETKEY)
+    req.userData = decoded
+    const user_id = req.userData.userId
+    db.query(`SELECT * FROM favorites WHERE user_id=?`, user_id, (err, result) =>{
+        if(err){
+            return res.status(400).send({
+                message: "Ошибка получения избранных постов"
+            })
+        }
+        if(result){
+           return res.status(200).send({
+               message: result
+           })
+        }
+    })
+}
+
+exports.delete_favorite = (req, res) =>{
+    const favorite_id = req.params.id
+    const token = (req.headers.authorization).split(' ')[1]
+    const decoded = jwt.verify(token, process.env.SECRETKEY)
+    req.userData = decoded
+    const user_id = req.userData.userId
+    db.query(`DELETE FROM favorites WHERE id=? AND user_id = user_id`, favorite_id, (err, result)=>{
+        if(err){
+            return res.status(400).send({
+                message: "Ошибка удаления из избранного"
+            })
+        }
+        if(result){
+            return res.status(200).send({
+                message: "Пост удален из избранного"
             })
         }
     })

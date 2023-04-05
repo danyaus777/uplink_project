@@ -46,6 +46,21 @@ router.post('/acceptpost/:id', isLoggedIn, isAdmin, PostController.moder_good)
 //http::localhost:3000/declinepost/:id
 router.post('/declinepost/:id', isLoggedIn, isAdmin, PostController.moder_bad)
 
+//http::localhost:3000/add_comment/:id
+router.post('/add_comment/:id', isLoggedIn, PostController.add_comment)
+
+//http::localhost:3000/delete_comment/:id
+router.delete('/delete_comment/:id', isLoggedIn, isAdmin, PostController.delete_comment)
+
+//http::localhost:3000/add_favorites/:id
+router.post('/add_favorites/:id', isLoggedIn, isAdmin, PostController.add_favorite)
+
+//http::localhost:3000/favorites
+router.get('/favorites', isLoggedIn, PostController.favorites)
+
+//http::localhost:3000/delete_favorite/:id
+router.delete('/delete_favorite/:id', isLoggedIn, PostController.delete_favorite)
+
 module.exports = router
 
 // router.post('/uploadimg', upload.single('ImageTest'), (req, res, next) => {
